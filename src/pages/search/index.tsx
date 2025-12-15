@@ -1,17 +1,29 @@
 import SearchableLayout from '@/components/searchable-layout';
 // import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
-import dummy from '@/mock/dummy.json';
 import style from './index.module.css';
 import MoviewItem from '@/components/movie-item';
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import fetchMovies from '@/lib/fetch-movies';
 
-export default function Page() {
-  // const router = useRouter();
-  // const { q } = router.query;
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const q = context.query.q;
 
+  const movies = await fetchMovies(q as string);
+
+  return {
+    props: { movies },
+  };
+};
+
+export default function Page({
+  movies,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className={style.container}>
-      {dummy.map((movie) => (
+      {movies.map((movie) => (
         <MoviewItem key={movie.id} {...movie} />
       ))}
     </div>
