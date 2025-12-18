@@ -2,6 +2,7 @@ import fetchOneMovie from '@/lib/fetch-one-movie';
 import style from './[id].module.css';
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 export const getStaticPaths = () => {
   return {
@@ -48,31 +49,54 @@ export default function Page({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
 
-  if (router.isFallback) return '로딩중입니다.';
+  if (router.isFallback) {
+    return (
+      <>
+        <Head>
+          <title>한입 씨네마</title>
+          <meta property="og:image" content="/thumbnail.png" />
+          <meta property="og:title" content="한입 씨네마" />
+          <meta
+            property="og:description"
+            content="한입 씨네마에 등록된 영화들을 만나보세요"
+          />
+        </Head>
+        <div>로딩중입니다...</div>
+      </>
+    );
+  }
 
   if (!movie) return '문제가 발생했습니다! 다시 시도하세요!';
 
   return (
-    <div className={style.container}>
-      <div
-        className={style.cover_img_container}
-        style={{ backgroundImage: `url(${movie.posterImgUrl})` }}
-      >
-        <img src={movie.posterImgUrl} />
-      </div>
-      <div className={style.info_container}>
-        <div>
-          <h2>{movie.title}</h2>
+    <>
+      <Head>
+        <title>{movie.title}</title>
+        <meta property="og:image" content={movie.posterImgUrl} />
+        <meta property="og:title" content={movie.title} />
+        <meta property="og:description" content={movie.description} />
+      </Head>
+      <div className={style.container}>
+        <div
+          className={style.cover_img_container}
+          style={{ backgroundImage: `url(${movie.posterImgUrl})` }}
+        >
+          <img src={movie.posterImgUrl} />
+        </div>
+        <div className={style.info_container}>
           <div>
-            {movie.releaseDate} / {movie.genres.join(', ')} /{movie.runtime}분
+            <h2>{movie.title}</h2>
+            <div>
+              {movie.releaseDate} / {movie.genres.join(', ')} /{movie.runtime}분
+            </div>
+            <div>{movie.company}</div>
           </div>
-          <div>{movie.company}</div>
-        </div>
-        <div>
-          <div className={style.subTitle}>{movie.subTitle}</div>
-          <div className={style.description}>{movie.description}</div>
+          <div>
+            <div className={style.subTitle}>{movie.subTitle}</div>
+            <div className={style.description}>{movie.description}</div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
